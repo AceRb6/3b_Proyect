@@ -30,16 +30,27 @@ Admin: http://localhost:8000/admin/
 
 ### 5. Estructura del Proyecto
 contenedores_docker/
+
 ├── docker-compose.yml      # Configuración de servicios
+
 ├── docker/
+
 │   └── init.sql           # Esquema de base de datos
+
 ├── backend/
+
 │   ├── Dockerfile         # Imagen de Django
+
 │   ├── requirements.txt   # Dependencias Python
+
 │   ├── manage.py
+
 │   ├── inventario_project/  # Configuración Django
+
 │   └── api/               # App con modelos y API
+
 └── README.md
+
 
 
 ### 6. Comandos Útiles
@@ -69,13 +80,21 @@ docker-compose down -v
 ```
 ### 7. Configuración
 Variables en docker-compose.yml:
+
 DB: PostgreSQL 15
+
 Usuario: admin/admin123
+
 Puerto API: 8000
+
 Puerto DB: 5432
 
 ### 8. Colaboración
 Crear rama: git checkout -b feature/nueva-funcionalidad
+
 Commit: git commit -m "Descripción clara"
+
 Push: git push origin feature/nueva-funcionalidad
+
 Pull Request en GitHub/GitLab
+
