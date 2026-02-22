@@ -1,0 +1,39 @@
+services:
+    db:
+        image: postgres:15
+        container_name: inventario_db
+        environment:
+            POSTGRES_DB: inventario_db
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin123
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - inventario_network
+
+    backend:
+        build: ./backend
+        container_name: inventario_backend
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - ./backend:/app
+        ports:
+            - "8000:8000"
+        environment:
+            - DEBUG=1
+            - DATABASE_URL=postgres://admin:admin123@db:5432/inventario_db
+        depends_on:
+            - db
+        networks:
+            - inventario_network
+
+volumes:
+    postgres_data:
+
+
+networks:
+    inventario_network:
+        driver: bridge
