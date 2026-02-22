@@ -29,6 +29,7 @@ Admin: http://localhost:8000/admin/
 ```
 
 ### 5. Estructura del Proyecto
+```
 contenedores_docker/
 
 ├── docker-compose.yml      # Configuración de servicios
@@ -50,7 +51,7 @@ contenedores_docker/
 │   └── api/               # App con modelos y API
 
 └── README.md
-
+```
 
 
 ### 6. Comandos Útiles
