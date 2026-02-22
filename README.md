@@ -31,25 +31,15 @@ Admin: http://localhost:8000/admin/
 ### 5. Estructura del Proyecto
 ```
 contenedores_docker/
-
 ├── docker-compose.yml      # Configuración de servicios
-
 ├── docker/
-
 │   └── init.sql           # Esquema de base de datos
-
 ├── backend/
-
 │   ├── Dockerfile         # Imagen de Django
-
 │   ├── requirements.txt   # Dependencias Python
-
 │   ├── manage.py
-
 │   ├── inventario_project/  # Configuración Django
-
 │   └── api/               # App con modelos y API
-
 └── README.md
 ```
 
