@@ -15,14 +15,18 @@ cd contenedores_docker
 ```
 
 ### 2. Iniciar contenedores
+```bash
 docker-compose up -d --build
-
+```
 ### 3. Crear superusuario
+```
 docker-compose exec backend python manage.py createsuperuser
-
+```
 ### 4. Acceder
+```
 API: http://localhost:8000/api/
 Admin: http://localhost:8000/admin/
+```
 
 ### 5. Estructura del Proyecto
 contenedores_docker/
@@ -40,23 +44,29 @@ contenedores_docker/
 
 ### 6. Comandos Útiles
 # Ver logs
+```
 docker-compose logs -f backend
-
+```
 # Entrar al contenedor
+```
 docker-compose exec backend bash
-
+```
 # Migraciones
+```
 docker-compose exec backend python manage.py migrate
-
+```
 # Cargar datos (si tienen CSV)
+```
 docker-compose exec backend python manage.py load_inventory /app/data.csv
-
+```
 # Detener todo
+```
 docker-compose down
-
+```
 # Eliminar volúmenes (borra datos)
+```
 docker-compose down -v
-
+```
 ### 7. Configuración
 Variables en docker-compose.yml:
 DB: PostgreSQL 15
