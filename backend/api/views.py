@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.db import models
 from django.db.models import F, Sum
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -114,20 +115,19 @@ def dashboard_data(request):
          "inventory_level": a["inventory_level"]} for a in low_inventory_qs
     ]
 
-    # Ventas mensuales del último año (MULTIPLICANDO units_sold * price)
+    # Ventas mensuales del último año (suma de unidades vendidas por mes)
     today = datetime.today().date()
     one_year_ago = today - timedelta(days=365)
     monthly_qs = (
         InventoryFact.objects
         .filter(date__gte=one_year_ago)
         .annotate(month=F('date__year') * 100 + F('date__month'))
-        .annotate(total_sales=F('units_sold') * F('price'))
         .values('month')
-        .annotate(sales_value=Sum('total_sales'))
+        .annotate(total_units=Sum('units_sold', output_field=models.IntegerField()))
         .order_by('month')
     )
     monthly_sales = {
-        f"{m['month'] // 100:04d}-{m['month'] % 100:02d}": float(m["sales_value"] or 0)
+        f"{m['month'] // 100:04d}-{m['month'] % 100:02d}": m["total_units"] or 0
         for m in monthly_qs
     }
 
