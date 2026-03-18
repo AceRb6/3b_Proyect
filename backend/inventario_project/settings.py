@@ -1,28 +1,29 @@
+# backend/inventario_project/settings.py
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-tu-clave-secreta-aqui-cambia-en-produccion'
-
 DEBUG = True
-
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Terceros
+
+    # Third‑party
     'rest_framework',
     'corsheaders',
-    
-    # Apps locales
-    'api',
+
+    # Local apps
+    'api',                     # <-- contiene los viewsets, modelos y el dashboard
+    'inventario_project',      # <-- solo para la configuración del proyecto
 ]
 
 MIDDLEWARE = [
@@ -41,7 +42,7 @@ ROOT_URLCONF = 'inventario_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],                     # APP_DIRS=True buscará en app/templates/
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -56,22 +57,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'inventario_project.wsgi.application'
 
-# CONFIGURACIÓN POSTGRESQL
+# ──────────────────────────────────────────────────────────────────────
+# PostgreSQL (ya lo tienes configurado)
+# ──────────────────────────────────────────────────────────────────────
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'inventario_db',
-        'USER': 'admin',           # ← NO 'postgres'
-        'PASSWORD': 'admin123',    # ← La contraseña correcta
-        'HOST': 'db',              # ← Nombre del servicio en docker-compose
+        'USER': 'admin',
+        'PASSWORD': 'admin123',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
 
-# CORS
 CORS_ALLOW_ALL_ORIGINS = True
 
-# Internacionalización
 LANGUAGE_CODE = 'es-es'
 TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
@@ -80,11 +81,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }
