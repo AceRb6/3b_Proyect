@@ -15,4 +15,5 @@ router.register(r'inventory', InventoryFactViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('', include('api.analytics_urls')),
 ]
