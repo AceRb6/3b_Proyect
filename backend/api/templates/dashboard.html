@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario Dashboard</title>
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS (browser version) -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col" style="font-family: 'Inter', sans-serif">
+  <!-- Header -->
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Inventario Dashboard</h1>
+    <p id="last-update" class="text-sm text-gray-500">Última actualización: —</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Top 10 Products Card -->
+      <section class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-xl font-semibold mb-2 flex items-center">
+          <img src="https://unpkg.com/lucide-static@latest/icons/trending-up.svg" alt="Top Products" width="24" height="24" class="mr-2">
+          Top 10 Productos Más Vendidos
+        </h2>
+        <ol id="top-products" class="list-decimal list-inside space-y-1 text-gray-800"></ol>
+      </section>
+
+      <!-- Top Stores Card -->
+      <section class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-xl font-semibold mb-2 flex items-center">
+          <img src="https://unpkg.com/lucide-static@latest/icons/store.svg" alt="Top Stores" width="24" height="24" class="mr-2">
+          Tiendas con Más Ventas
+        </h2>
+        <ol id="top-stores" class="list-decimal list-inside space-y-1 text-gray-800"></ol>
+      </section>
+
+      <!-- Inventory Alerts Card -->
+      <section class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-xl font-semibold mb-2 flex items-center">
+          <img src="https://unpkg.com/lucide-static@latest/icons/alert-triangle.svg" alt="Alerts" width="24" height="24" class="mr-2">
+          Alertas de Inventario Bajo
+        </h2>
+        <ul id="inventory-alerts" class="space-y-1 text-gray-800"></ul>
+      </section>
+    </div>
+
+    <!-- Bar Chart Card -->
+    <section class="bg-white rounded-lg shadow p-4 mt-6">
+      <h2 class="text-xl font-semibold mb-2 flex items-center">
+        <img src="https://unpkg.com/lucide-static@latest/icons/bar-chart-2.svg" alt="Sales Chart" width="24" height="24" class="mr-2">
+        Ventas Mensuales del Último Año
+      </h2>
+      <div class="w-full overflow-x-auto">
+        <svg id="sales-chart" class="w-full h-64" viewBox="0 0 800 400" preserveAspectRatio="none"></svg>
+      </div>
+    </section>
+  </main>
+
+  <!-- Navigation Buttons -->
+  <footer class="bg-white shadow p-4 flex justify-center space-x-4">
+    <a href="/historico" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <img src="https://unpkg.com/lucide-static@latest/icons/calendar.svg" alt="Histórico" width="20" height="20" class="mr-2">
+      Histórico de Ventas
+    </a>
+    <a href="/zonas" class="flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      <img src="https://unpkg.com/lucide-static@latest/icons/map-pin.svg" alt="Zonas" width="20" height="20" class="mr-2">
+      Zonas Comerciales
+    </a>
+    <a href="/dias-inventario" class="flex items-center bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+      <img src="https://unpkg.com/lucide-static@latest/icons/clock.svg" alt="Días Inventario" width="20" height="20" class="mr-2">
+      Días de Inventario
+    </a>
+    <a href="/forecasting" class="flex items-center bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+      <img src="https://unpkg.com/lucide-static@latest/icons/trend-up.svg" alt="Forecasting" width="20" height="20" class="mr-2">
+      Forecasting de Ventas
+    </a>
+  </footer>
+
+  <!-- JavaScript for Data Fetching and Rendering -->
+  <script>
+    // Utility: format date as DD/MM/YYYY
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString('es-ES');
+    };
+
+    // Main async function
+    async function initDashboard() {
+      try {
+        const response = await fetch('/api/dashboard/data/');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+
+        const topProducts = Array.isArray(data.top_10_products) ? data.top_10_products : [];
+        const topStores = Array.isArray(data.top_10_stores) ? data.top_10_stores : [];
+        const lowInventory = Array.isArray(data.low_inventory) ? data.low_inventory : [];
+        const monthlySales = data.monthly_sales && typeof data.monthly_sales === 'object'
+          ? data.monthly_sales
+          : {};
+        const lastUpdate = data.last_update || null;
+
+        // Render last update
+        document.getElementById('last-update').textContent = `Última actualización: ${formatDate(lastUpdate)}`;
+
+        // Render top 10 products
+        const topProductsList = document.getElementById('top-products');
+        if (topProducts.length === 0) {
+          topProductsList.innerHTML = `<li class="text-gray-500">Sin datos de productos.</li>`;
+        } else {
+          topProductsList.innerHTML = topProducts
+            .map(item => `<li>${item.product_name || item.product_id} (${item.product_id}): ${item.units_sold || 0} unidades</li>`)
+            .join('');
+        }
+
+        // Render top stores
+        const topStoresList = document.getElementById('top-stores');
+        if (topStores.length === 0) {
+          topStoresList.innerHTML = `<li class="text-gray-500">Sin datos de tiendas.</li>`;
+        } else {
+          topStoresList.innerHTML = topStores
+            .map(item => `<li>${item.store_id} (${item.region || 'Sin región'}): ${item.units_sold || 0} unidades</li>`)
+            .join('');
+        }
+
+        // Render inventory alerts
+        const alertsList = document.getElementById('inventory-alerts');
+        if (lowInventory.length === 0) {
+          alertsList.innerHTML = `<li class="text-green-600">No hay alertas de inventario bajo.</li>`;
+        } else {
+          alertsList.innerHTML = lowInventory
+            .map(item => `<li>Producto ${item.product_id} en tienda ${item.store_id}: ${item.inventory_level} unidades</li>`)
+            .join('');
+        }
+
+        // Render bar chart
+        renderBarChart(monthlySales);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    // Render a simple bar chart using SVG
+    function renderBarChart(monthlyData) {
+      const svg = document.getElementById('sales-chart');
+      const width = 800;
+      const height = 400;
+      const padding = { left: 50, right: 20, top: 20, bottom: 40 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      // Sort months chronologically
+      const months = Object.keys(monthlyData).sort();
+      if (months.length === 0) {
+        svg.innerHTML = `<text x="${width/2}" y="${height/2}" text-anchor="middle" fill="gray">No hay datos de ventas</text>`;
+        return;
+      }
+
+      const maxValue = Math.max(...months.map(m => monthlyData[m]));
+      const barWidth = chartWidth / months.length * 0.8;
+      const gap = chartWidth / months.length * 0.2;
+
+      // Clear previous content
+      svg.innerHTML = '';
+
+      // X axis
+      const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      xAxis.setAttribute('x1', padding.left);
+      xAxis.setAttribute('y1', padding.top + chartHeight);
+      xAxis.setAttribute('x2', padding.left + chartWidth);
+      xAxis.setAttribute('y2', padding.top + chartHeight);
+      xAxis.setAttribute('stroke', '#4B5563'); // gray-600
+      xAxis.setAttribute('stroke-width', '2');
+      svg.appendChild(xAxis);
+
+      // Y axis
+      const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      yAxis.setAttribute('x1', padding.left);
+      yAxis.setAttribute('y1', padding.top);
+      yAxis.setAttribute('x2', padding.left);
+      yAxis.setAttribute('y2', padding.top + chartHeight);
+      yAxis.setAttribute('stroke', '#4B5563');
+      yAxis.setAttribute('stroke-width', '2');
+      svg.appendChild(yAxis);
+
+      // Bars
+      months.forEach((month, idx) => {
+        const value = monthlyData[month];
+        const barHeight = (value / maxValue) * chartHeight;
+        const x = padding.left + idx * (barWidth + gap) + gap / 2;
+        const y = padding.top + chartHeight - barHeight;
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', barWidth);
+        rect.setAttribute('height', barHeight);
+        rect.setAttribute('fill', '#3B82F6'); // blue-500
+        rect.setAttribute('rx', '4');
+        svg.appendChild(rect);
+
+        // X axis label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x + barWidth / 2);
+        label.setAttribute('y', padding.top + chartHeight + 15);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#374151'); // gray-700
+        label.textContent = month.slice(5); // MM
+        svg.appendChild(label);
+      });
+
+      // Y axis labels (0, max/2, max)
+      const yLabels = [0, Math.round(maxValue / 2), maxValue];
+      yLabels.forEach(val => {
+        const y = padding.top + chartHeight - (val / maxValue) * chartHeight;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', padding.left - 5);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', padding.left);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#4B5563');
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', padding.left - 10);
+        text.setAttribute('y', y + 4);
+        text.setAttribute('text-anchor', 'end');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('fill', '#374151');
+        text.textContent = val;
+        svg.appendChild(text);
+      });
+    }
+
+    // Initialize dashboard on page load
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>

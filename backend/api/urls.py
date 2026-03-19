@@ -1,19 +1,19 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    StoreViewSet, CategoryViewSet, ProductViewSet,
-    WeatherConditionViewSet, SeasonViewSet, InventoryFactViewSet
-)
+from . import views
 
 router = DefaultRouter()
-router.register(r'stores', StoreViewSet)
-router.register(r'categories', CategoryViewSet)
-router.register(r'products', ProductViewSet)
-router.register(r'weather', WeatherConditionViewSet)
-router.register(r'seasons', SeasonViewSet)
-router.register(r'inventory', InventoryFactViewSet)
+router.register(r'stores', views.StoreViewSet)
+router.register(r'categories', views.CategoryViewSet)
+router.register(r'products', views.ProductViewSet)
+router.register(r'weather', views.WeatherConditionViewSet)
+router.register(r'seasons', views.SeasonViewSet)
+router.register(r'inventory', views.InventoryFactViewSet)
 
 urlpatterns = [
+    # Router DRF (todos los endpoints de la API)
     path('', include(router.urls)),
-    path('', include('api.analytics_urls')),
+
+    # Endpoint JSON que el front‑end consume
+    path('dashboard/data/', views.dashboard_data, name='dashboard_data'),
 ]
