@@ -89,3 +89,4 @@ Push: git push origin feature/nueva-funcionalidad
 
 Pull Request en GitHub/GitLab
 
+DEUDA TECNICA MAÑANA LO RESOLVEMOS 
