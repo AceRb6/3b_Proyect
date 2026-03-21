@@ -142,3 +142,5 @@ def dashboard_data(request):
         "monthly_sales": monthly_sales,
         "last_update": last_update,
     })
+    
+    
